@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+      integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA=="
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"
+      integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ=="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+      crossorigin="anonymous"
+    ></script>
+    <title>Real-Time Tweet Stream</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container">
+        <a href="#" class="navbar-brand">Command Center - Real-Time Tweet Monitoring</a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <div class="col" id="cabecera">
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum ducimus
+            quibusdam soluta incidunt repellendus vero quae est inventore omnis
+            suscipit consequatur numquam natus optio et, sequi distinctio
+            officiis impedit. Soluta?
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div id="tweetStream">
+            <div class="titulo_normal">
+              <p>Tweets Normales</p>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div id="peligro">
+            <div class="titulo">
+              <p>Tweets urgentes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        const tweetStream = document.getElementById("tweetStream");
+        const tweetStreamP = document.getElementById("peligro");
+        const socket = io();
+
+        const tweets = [];
+
+        socket.on("connect", () => {
+          console.log("Connected to server...");
+        });
+
+        socket.on("tweet", (tweet, rules) => {
+          //console.log(tweet.data.public_metrics.retweet_count);
+          const tweetData = {
+            id: tweet.data.id,
+            text: tweet.data.text,
+            created: tweet.data.created_at,
+            hours: tweet.data.created_at.slice(11, -8),
+            day: tweet.data.created_at.substr(0, 10),
+            retweet: tweet.data.public_metrics.retweet_count,
+            reply: tweet.data.public_metrics.reply_count,
+            like: tweet.data.public_metrics.like_count,
+            quote: tweet.data.public_metrics.quote_count,
+            username: `@${tweet.includes.users[0].username}`,
+          };
+
+          //let prohibido = ["comprar", "carrera"]
+          /*
+          if (tweetData.text.includes("seguro")) {
+            const tweetEl = document.createElement("div");
+            tweetEl.className = "card my-3";
+            tweetEl.innerHTML = `
+                <h5 class="card-header">${tweetData.username}</h5>
+                <div class="card-body">
+                    <h5 class="card-title">${tweetData.text}</h5>
+                    <h6 class="card-subtitle mb-2 pt-1 text-muted">Publicado el dia ${tweetData.day} a las ${tweetData.hours}Z </h6>
+                    
+                    <div class="card-footer px-5" id="listas">
+                      <ul class="nav">
+                        <li><i class="fa fa-retweet"></i> ${tweetData.retweet}</li>
+                        <li><i class="fa fa-reply"></i> ${tweetData.reply}</li>
+                        <li><i class="fa fa-thumbs-up"></i> ${tweetData.like}</li>
+                        <li><i class="fa fa-comment"></i> ${tweetData.quote}</li>
+                        <li><a class="nav-link active" href="https://twitter.com/${tweetData.username}/status/${tweetData.id}"><i class="fab fa-twitter"></i> Go To Tweet</a></li>
+                      </ul>
+                    </div>
+                </div>
+            `;
+            $(tweetStreamP).prepend(tweetEl);
+          } else {
+            const tweetEl = document.createElement("div");
+            tweetEl.className = "card my-3";
+            tweetEl.innerHTML = `
+                <h5 class="card-header">${tweetData.username}</h5>
+                <div class="card-body">
+                    <h5 class="card-title">${tweetData.text}</h5>
+                    <h6 class="card-subtitle mb-2 pt-1 text-muted">Publicado el dia ${tweetData.day} a las ${tweetData.hours}Z </h6>
+                    
+                    <div class="card-footer px-5" id="listas">
+                      <ul class="nav">
+                        <li><i class="fa fa-retweet"></i> ${tweetData.retweet}</li>
+                        <li><i class="fa fa-reply"></i> ${tweetData.reply}</li>
+                        <li><i class="fa fa-thumbs-up"></i> ${tweetData.like}</li>
+                        <li><i class="fa fa-comment"></i> ${tweetData.quote}</li>
+                        <li><a class="nav-link active" href="https://twitter.com/${tweetData.username}/status/${tweetData.id}"><i class="fab fa-twitter"></i> Go To Tweet</a></li>
+                      </ul>
+                    </div>
+                </div>
+            `;
+            $(tweetStream).prepend(tweetEl);
+          }
+          */
+
+          
+          const tweetEl = document.createElement("div");
+          tweetEl.className = "card my-3";
+          tweetEl.innerHTML = `
+              <h5 class="card-header">${tweetData.username}</h5>
+              <div class="card-body">
+                  <h5 class="card-title">${tweetData.text}</h5>
+                  <h6 class="card-subtitle mb-2 pt-1 text-muted">Publicado el dia ${tweetData.day} a las ${tweetData.hours}Z </h6>
+                  
+                  <div class="card-footer px-5" id="listas">
+                    <ul class="nav">
+                      <li><i class="fa fa-retweet"></i> ${tweetData.retweet}</li>
+                      <li><i class="fa fa-reply"></i> ${tweetData.reply}</li>
+                      <li><i class="fa fa-thumbs-up"></i> ${tweetData.like}</li>
+                      <li><i class="fa fa-comment"></i> ${tweetData.quote}</li>
+                      <li><a class="nav-link active" href="https://twitter.com/${tweetData.username}/status/${tweetData.id}" target="_blank"><i class="fab fa-twitter"></i> Go To Tweet</a></li>
+                    </ul>
+                  </div>
+              </div>
+          `;
+          $(tweetStream).prepend(tweetEl);
+          $(".card").fadeIn(2000);
+
+          //setTimeout(() => tweetEl.remove(), 5000)
+          
+        });
+      });
+    </script>
+  </body>
+</html>
+
+<!--
+                   <a class="btn btn-primary mt-3" href="https://twitter.com/${tweetData.username}/status/${tweetData.id}">
+                      <i class="fab fa-twitter"></i> Go To Tweet    
+                  </a>
+
+                                    <ul class="nav">
+                    <li><a class="btn btn-primary mt-3" href="https://twitter.com/${tweetData.username}/status/${tweetData.id}">
+                      <i class="fab fa-twitter"></i> Go To Tweet</a></li>
+                    <li><i class="fa fa-retweet"></i>${tweetData.retweet}</li>
+                    <li><i class="fa fa-reply"></i>${tweetData.reply}</li>
+                    <li><i class="fa fa-thumbs-up"></i>${tweetData.like}</li>
+                    <li><i class="fa fa-comment"></i>${tweetData.quote}</li>
+                  </ul>
+-->
