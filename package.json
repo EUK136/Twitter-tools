@@ -9,7 +9,7 @@
     "sconsole": "node ./stream/stream.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Alberto Gijón",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.3",
