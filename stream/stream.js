@@ -20,11 +20,17 @@ const streamURL = 'https://api.twitter.com/2/tweets/search/stream';
 
 // Edit rules as desired below
 const rules = [{
-        'value': 'girona -is:retweet place_country: ES',
-        'tag': 'Girona'
+        'value': 'lula -is:retweet place_country:ES',
+        'tag': 'Lula'
     },
-    {'value': 'robo -is:retweet place_country: ES',
+    {'value': 'robo -is:retweet place_country:ES',
     'tag': 'Futbol'
+    },
+    {'value': 'tesla -is:retweet',
+    'tag': 'Tesla'
+    },
+    {'value': 'elon -is:retweet',
+    'tag': 'Elon'
     }
 ];
 
